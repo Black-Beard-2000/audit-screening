@@ -1,0 +1,170 @@
+'use client'
+
+import { useEffect, useRef } from 'react'
+import { useScreeningStore } from '@/stores/useScreeningStore'
+import ChatMessage from '@/components/ChatMessage'
+import QuestionInput from '@/components/QuestionInput'
+import LoadingSpinner from '@/components/LoadingSpinner'
+import { Button } from '@/components/ui/button'
+import { RefreshCw, Shield, Clock } from 'lucide-react'
+
+export default function Home() {
+  const { 
+    messages, 
+    currentStep, 
+    isLoading, 
+    name, 
+    email, 
+    drink_type, 
+    treatment_history, 
+    totalScore,
+    setCurrentStep,
+    setLoading,
+    addMessage,
+    reset
+  } = useScreeningStore()
+  
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+  
+  useEffect(scrollToBottom, [messages])
+  
+  // Handle submission when all questions are completed
+  useEffect(() => {
+    if (currentStep === 'submitting' && !isLoading) {
+      return // Already processed
+    }
+    
+    if (currentStep === 'submitting' && isLoading) {
+      submitScreening()
+    }
+  }, [currentStep, isLoading])
+  
+  const submitScreening = async () => {
+    try {
+      const response = await fetch('/api/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          score: totalScore,
+          drink_type,
+          treatment_history
+        })
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to submit screening')
+      }
+      
+      const result = await response.json()
+      
+      addMessage({
+        type: 'bot',
+        content: `✅ Success! Your personalized report has been sent to ${email}.\n\nYour screening score: ${totalScore}/40\nRisk category: ${result.zone}\n\nPlease check your email (including spam folder) within the next few minutes. The report includes personalized recommendations and helpful resources.\n\nThank you for taking this important step in understanding your relationship with alcohol.`
+      })
+      
+      setCurrentStep('complete')
+      setLoading(false)
+      
+    } catch (error) {
+      console.error('Submission error:', error)
+      addMessage({
+        type: 'bot',
+        content: 'I apologize, but there was an error sending your report. Please try again or contact support if the issue persists.'
+      })
+      setLoading(false)
+    }
+  }
+  
+  const shouldShowInput = currentStep !== 'complete' && currentStep !== 'submitting' && currentStep !== 'reminder'
+  
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-green-500 rounded-full flex items-center justify-center">
+                <Shield className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-semibold text-gray-900">Alcohol Screening Tool</h1>
+                <p className="text-sm text-gray-600">Confidential & Secure</p>
+              </div>
+            </div>
+            
+            {currentStep === 'complete' && (
+              <Button
+                onClick={reset}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className="w-4 h-4" />
+                New Assessment
+              </Button>
+            )}
+          </div>
+        </div>
+      </header>
+      
+      {/* Main Content */}
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          {/* Chat Messages */}
+          <div className="h-[60vh] sm:h-[65vh] overflow-y-auto p-4 sm:p-6 bg-gradient-to-b from-gray-50 to-white">
+            <div className="space-y-4">
+              {messages.map((message, index) => (
+                <ChatMessage
+                  key={message.id}
+                  message={message}
+                  isLatest={index === messages.length - 1}
+                />
+              ))}
+              
+              {currentStep === 'submitting' && isLoading && <LoadingSpinner />}
+              
+              <div ref={messagesEndRef} />
+            </div>
+          </div>
+          
+          {/* Input Area */}
+          {shouldShowInput && (
+            <div className="border-t border-gray-200 p-4 sm:p-6 bg-white">
+              <QuestionInput />
+            </div>
+          )}
+        </div>
+        
+        {/* Footer Disclaimer */}
+        <div className="mt-6 bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <Clock className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-amber-800">
+              <p className="font-medium mb-1">Important Disclaimer</p>
+              <p>
+                This screening tool is for educational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment. 
+                Always consult with a qualified healthcare provider or addiction specialist for comprehensive evaluation and treatment recommendations.
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        {/* Privacy Notice */}
+        <div className="mt-4 text-center">
+          <p className="text-xs text-gray-500">
+            Your responses are confidential and securely stored. This assessment takes approximately 5-10 minutes to complete.
+          </p>
+        </div>
+      </main>
+    </div>
+  )
+}
