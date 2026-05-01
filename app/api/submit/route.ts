@@ -1,7 +1,7 @@
 // app/api/submit/route.ts
 export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { getDatabase } from '@/lib/mongodb'
 import { getScoreZone } from '@/lib/scoring'
 import OpenAI from 'openai'
 import nodemailer from 'nodemailer'
@@ -30,15 +30,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Insert into Supabase
-    const { data, error } = await supabase.from('responses').insert([
-      { name, email, score, drink_type, treatment_history },
-    ])
-    if (error) {
-      console.error('❌ Supabase insert error:', error)
+    // Insert into MongoDB
+    try {
+      const db = await getDatabase()
+      const result = await db.collection('responses').insertOne({
+        name,
+        email,
+        score,
+        drink_type,
+        treatment_history,
+        created_at: new Date(),
+      })
+      console.log('✅ MongoDB insert success:', result.insertedId)
+    } catch (error) {
+      console.error('❌ MongoDB insert error:', error)
       return NextResponse.json({ error: 'Database error' }, { status: 500 })
     }
-    console.log('✅ Supabase insert success:', data)
 
     // Score zone
     const scoreZone = getScoreZone(score)

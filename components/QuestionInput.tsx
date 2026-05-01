@@ -69,7 +69,7 @@ export default function QuestionInput() {
           <Button 
             onClick={() => handleTextSubmit(action)}
             disabled={!inputValue.trim()}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-purple-600 hover:bg-purple-700"
           >
             Send
           </Button>
@@ -88,7 +88,7 @@ export default function QuestionInput() {
             key={type}
             onClick={() => setDrinkType(type)}
             variant="outline"
-            className="h-12 text-base hover:bg-blue-50 hover:border-blue-300 transition-colors"
+            className="h-12 text-primary hover:bg-purple-100 hover:border-purple-300 transition-colors"
           >
             {type}
           </Button>
@@ -107,7 +107,7 @@ export default function QuestionInput() {
             key={option}
             onClick={() => setTreatmentHistory(option)}
             variant="outline"
-            className="h-12 text-base hover:bg-blue-50 hover:border-blue-300 transition-colors"
+            className="h-12 text-base hover:bg-purple-50 hover:border-purple-300 transition-colors"
           >
             {option}
           </Button>
@@ -122,11 +122,11 @@ export default function QuestionInput() {
     
     return (
       <div className="space-y-4">
-        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-          <div className="text-sm text-blue-600 mb-1">
+        <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+          <div className="text-sm text-purple-600 mb-1">
             Question {currentQuestionIndex + 1} of 10
           </div>
-          <div className="font-medium text-blue-900">
+          <div className="font-medium text-purple-900">
             {currentQuestion.question}
           </div>
         </div>
@@ -137,7 +137,7 @@ export default function QuestionInput() {
               key={index}
               onClick={() => handleAuditAnswer(option.score, option.text)}
               variant="outline"
-              className="h-auto py-3 px-4 text-left justify-start text-wrap hover:bg-green-50 hover:border-green-300 transition-colors"
+              className="h-auto py-3 px-4 text-left justify-start text-wrap hover:bg-purple-50 hover:border-purple-300 transition-colors"
             >
               {option.text}
             </Button>

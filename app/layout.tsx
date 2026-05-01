@@ -13,6 +13,10 @@ export const metadata: Metadata = {
   description: 'A confidential alcohol screening questionnaire that provides personalized feedback and resources based on the AUDIT assessment.',
   keywords: ['alcohol screening', 'AUDIT questionnaire', 'alcohol assessment', 'addiction screening'],
   robots: 'noindex, nofollow', // Privacy consideration
+  icons: {
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+  },
 };
 
 export default function RootLayout({

@@ -23,8 +23,8 @@ export default function ChatMessage({ message, isLatest = false }: ChatMessagePr
           "max-w-[85%] sm:max-w-[75%] px-4 py-3 rounded-2xl shadow-sm",
           "whitespace-pre-wrap text-sm sm:text-base leading-relaxed",
           isBot 
-            ? "bg-gradient-to-r from-blue-50 to-blue-100 text-blue-900 rounded-bl-sm border border-blue-200" 
-            : "bg-gradient-to-r from-green-500 to-green-600 text-white rounded-br-sm",
+            ? "bg-gradient-to-r from-purple-50 to-purple-100 text-purple-900 rounded-bl-sm border border-purple-200" 
+            : "bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-br-sm",
           isLatest && "animate-pulse"
         )}
       >
